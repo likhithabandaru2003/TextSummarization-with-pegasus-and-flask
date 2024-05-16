@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarization</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* File input button styling */
+        .file-input-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            border-radius: 15px; /* Rounded corners */
+            background-color: #007bff; /* Blue color */
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        #summarizeBtn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 15px; /* Rounded corners */
+        }
+        /* Styles for displaying data */
+        .data-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            height: 400px;
+            padding: 15px;
+            overflow-y: auto; 
+    
+        }
+
+        .data-box {
+            width: 50%; /* Adjust the width as needed */
+            max-width: 50%; /* Ensure the box doesn't exceed the container's width */
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+            white-space: pre-line;
+            justify-content: space-between;
+        }
+
+/* Limit height for small screens */
+        @media screen and (max-width: 768px) {
+            .data-container {
+                height: calc(100vh - 150px); /* Adjust height for smaller screens */
+        
+            }   
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Text Summarization</h1> <!-- Heading aligned center -->
+        <!-- Custom styled file input button -->
+        <label for="fileInput" class="file-input-container">
+            <span id="fileLabel">Choose File</span>
+            <input type="file" id="fileInput" accept=".docx,.pdf,.txt,.html" class="file-input">
+        </label>
+        <p>(.txt,.docx,.html,.pdf are accecepted)</p>
+        <button id="summarizeBtn">Summarize</button>
+    </div>
+
+    <div class="data-container">
+        <div class="data-box" id="inputDataBox">
+            <h3>Input Data</h3>
+            <div id="inputData"></div>
+        </div>
+        <div class="data-box" id="summaryDataBox">
+            <h3>Summary Data</h3>
+            <div id="summaryData"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function () {
+            const fileLabel = document.getElementById('fileLabel');
+            if (this.files && this.files.length > 0) {
+                fileLabel.innerText = this.files[0].name;
+            } else {
+                fileLabel.innerText = 'Choose File';
+            }
+        });
+
+        document.getElementById('summarizeBtn').addEventListener('click', function () {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('http://localhost:5000/summarize', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response:', data);
+                        document.getElementById('inputData').innerText = data.input_text;
+                        document.getElementById('summaryData').innerText = data.summary_text;
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                alert('Please select a file.');
+            }
+        });
+    </script>
+</body>
+
+</html>
